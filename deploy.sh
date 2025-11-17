@@ -61,6 +61,30 @@ echo "App Service URL: $APP_SERVICE_URL"
 if [ "$INCLUDE_CHAT_UI" = "true" ]; then
     echo "OpenAI Endpoint: $OPENAI_ENDPOINT"
     echo "OpenAI Name: $OPENAI_NAME"
+    
+    # Configure GenAI settings in App Service
+    echo ""
+    echo "Configuring GenAI settings..."
+    
+    # Get OpenAI API Key
+    OPENAI_KEY=$(az cognitiveservices account keys list \
+        --resource-group "$RESOURCE_GROUP" \
+        --name "$OPENAI_NAME" \
+        --query 'key1' \
+        --output tsv)
+    
+    # Configure App Service settings
+    az webapp config appsettings set \
+        --resource-group "$RESOURCE_GROUP" \
+        --name "$APP_SERVICE_NAME" \
+        --settings \
+            GenAI__IncludeChatUI="true" \
+            GenAI__OpenAIEndpoint="$OPENAI_ENDPOINT" \
+            GenAI__OpenAIKey="$OPENAI_KEY" \
+            GenAI__DeploymentName="$DEPLOYMENT_NAME" \
+        --output none
+    
+    echo "✓ GenAI settings configured"
 fi
 
 echo ""

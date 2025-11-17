@@ -1,0 +1,29 @@
+# Build results
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+publish/
+*.log
+*.user
+*.suo
+.vs/
+
+# .NET files
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# VS Code
+.vscode/
+
+# Rider
+.idea/
+
+# User-specific files
+*.rsuser
+*.userosscache
+*.sln.docstates
+
+# Keep deployment zip file - needed for Azure deployment
+# !app.zip is commented out to ensure app.zip is committed

@@ -1,0 +1,103 @@
+@page
+@model ExpenseManagement.Pages.ChatModel
+@{
+    ViewData["Title"] = "AI Chat Assistant";
+}
+
+@if (!Model.IsEnabled)
+{
+    <div class="container mt-4">
+        <div class="alert alert-warning" role="alert">
+            <h4 class="alert-heading"><i class="bi bi-exclamation-triangle"></i> Chat UI Not Enabled</h4>
+            <p>The GenAI Chat UI is currently disabled. To enable it:</p>
+            <ol>
+                <li>Redeploy with the environment variable: <code>INCLUDE_CHAT_UI=true ./deploy.sh</code></li>
+                <li>This will provision Azure OpenAI and Cognitive Search resources</li>
+            </ol>
+            <hr>
+            <p class="mb-0">For now, you can use the regular UI to manage expenses:</p>
+            <div class="mt-2">
+                <a href="/Index" class="btn btn-primary">Add Expense</a>
+                <a href="/Expenses" class="btn btn-secondary">View Expenses</a>
+                <a href="/Approve" class="btn btn-secondary">Approve Expenses</a>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="container mt-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h2 class="mb-0"><i class="bi bi-chat-dots"></i> AI Expense Assistant</h2>
+            </div>
+            <div class="card-body">
+                <div class="chat-container mb-3" id="chatContainer" style="height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 15px; border-radius: 5px; background-color: #f8f9fa;">
+                    <div class="chat-message assistant mb-3">
+                        <div class="d-flex align-items-start">
+                            <div class="badge bg-primary me-2" style="font-size: 1rem;">AI</div>
+                            <div class="flex-grow-1">
+                                <p class="mb-0">Hello! I'm your AI expense assistant. I can help you:</p>
+                                <ul class="mt-2 mb-0">
+                                    <li>View and search your expenses</li>
+                                    <li>Create new expense entries</li>
+                                    <li>Check pending approvals</li>
+                                    <li>Approve or reject expenses</li>
+                                </ul>
+                                <p class="mt-2 mb-0">Try asking me things like "Show me pending expenses" or "What expenses do I have?"</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    @foreach (var message in Model.ChatHistory)
+                    {
+                        <div class="chat-message @(message.IsUser ? "user" : "assistant") mb-3">
+                            <div class="d-flex align-items-start @(message.IsUser ? "justify-content-end" : "")">
+                                @if (!message.IsUser)
+                                {
+                                    <div class="badge bg-primary me-2" style="font-size: 1rem;">AI</div>
+                                }
+                                <div class="@(message.IsUser ? "bg-primary text-white" : "bg-light") p-3 rounded" style="max-width: 80%;">
+                                    <p class="mb-0" style="white-space: pre-wrap;">@message.Content</p>
+                                </div>
+                                @if (message.IsUser)
+                                {
+                                    <div class="badge bg-secondary ms-2" style="font-size: 1rem;">You</div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+                
+                <form method="post" id="chatForm">
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="userMessage" name="UserMessage" 
+                               placeholder="Ask me about your expenses..." required autocomplete="off" />
+                        <button type="submit" class="btn btn-primary" id="sendButton">
+                            <i class="bi bi-send"></i> Send
+                        </button>
+                    </div>
+                </form>
+                
+                <hr class="my-4" />
+                
+                <div class="d-flex gap-2 justify-content-center">
+                    <a href="/Index" class="btn btn-outline-secondary">Add Expense</a>
+                    <a href="/Expenses" class="btn btn-outline-secondary">View Expenses</a>
+                    <a href="/Approve" class="btn btn-outline-secondary">Approve Expenses</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Scroll to bottom of chat on page load
+        window.onload = function() {
+            var chatContainer = document.getElementById('chatContainer');
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        };
+        
+        // Auto-focus on input field
+        document.getElementById('userMessage').focus();
+    </script>
+}
